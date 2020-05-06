@@ -180,7 +180,7 @@ char* do_transaction(char* msg)
 	/*Now return the message itself*/
 	return (buf);
 }/*do_transaction*/
-/******************************
+/*******************************
 *narrate:print message to stderr for debugging and demo purpose
 IN msg1,msg2:strings to print along with pid and title
 RET nothing,dies on error
