@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <stdlib.h>
+#include<ctime>
 #ifdef _WIN32
 #include <io.h>
 #include <direct.h>
@@ -24,7 +25,7 @@
 #include <dirent.h>
 #endif
 
-#define MSGLEN 20
+#define MSGLEN 1024
 #define PASSWORDLEN 10
 
 class client {
