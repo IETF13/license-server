@@ -146,6 +146,7 @@
     <ClCompile Include="..\src\src\server\lserv2.cpp" />
     <ClCompile Include="..\src\src\server\lserv_funcs2.cpp" />
     <ClCompile Include="..\src\src\server\lsrv_funcs1.c" />
+    <ClCompile Include="LogFile.cpp" />
     <ClCompile Include="server.cpp" />
   </ItemGroup>
   <ItemGroup>
