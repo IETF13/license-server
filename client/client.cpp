@@ -14,24 +14,27 @@ client::client(char * addr,int portnum,char *Password)
 #endif
 	memset(&serv_addr, 0, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_addr.s_addr = inet_addr(addr);
-	//serv_addr_cmd.sin_addr.s_addr = INADDR_ANY;
+	//serv_addr.sin_addr.s_addr = inet_addr(addr);
+	serv_addr.sin_addr.S_un.S_addr = inet_addr(addr);
 	serv_addr.sin_port = htons(portnum);
+
+	int timeout = 1200;
+	setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO,(char*)&timeout ,sizeof(timeout));
 }
 
 bool client::running()
 {
 	if (get_ticket()) {
-		int conn_time = 0;//if connect failed,conn_time++,if conn_time>=3,APP exit;if connect valid,conn_time=0
-		int second = 0;
+		int disconn_times = 0;//if connect failed,disconn_times++,if conn_time>=3,APP exit;if connect valid,disconn_times=0
+		clock_t last_conn_time=clock();
 		while (true) {
-			if (second > 20) {
-				second -= 20;
+			if ((clock()-last_conn_time)/ CLOCKS_PER_SEC >20) {
+				last_conn_time = clock();
 				if (confirm_connect())
-					conn_time = 0;
-				else conn_time++;
+					disconn_times = 0;
+				else disconn_times++;
 			}
-			if (conn_time >= 3) {
+			if (disconn_times >= 3) {
 				printf("connection with server lost.APP close.");
 			}
 
@@ -55,18 +58,19 @@ bool client::running()
 
 bool client::get_ticket()
 {
-	char msg[20];
-	memset(msg, 0, 20);
-	sprintf(msg, "HELO %s",password);
-	int recv_len;
-	sendto(sock, msg, strlen(msg), 0, (struct sockaddr*)(&serv_addr), sizeof(serv_addr));
-	memset(msg, 0, 20);
+	char msg[MSGLEN];
+	memset(msg, 0, MSGLEN);
+	int addr_len=sizeof(sockaddr);
 	while (true) {
-		for (int i = 0; i < 10; i++) {
-			if (recvfrom(sock, msg, MSGLEN, 0, (struct sockaddr*) & serv_addr, &recv_len) != -1) {
+	sprintf(msg, "HELO %s", password);
+	sendto(sock, msg, MSGLEN, 0, (struct sockaddr*)(&serv_addr), sizeof(serv_addr));
+	memset(msg, 0, MSGLEN);
+		for (int i = 0; i < 5; i++) {
+	int ret = recvfrom(sock, msg, MSGLEN, 0, (struct sockaddr*) & serv_addr, &addr_len);
+			if ( ret!= -1) {
 				if (strncmp(msg, "TICK", 4) == 0) {
 					ticket_NO = atoi(msg+5);
-					printf("get ticket\n");
+					printf("get ticket %d\n",ticket_NO);
 					return true;
 				}
 				else if (strncmp(msg, "FAIL", 4) == 0) {
@@ -76,41 +80,40 @@ bool client::get_ticket()
 				else perror("received message wrong\n");
 				return false;
 			}
-			Sleep(500);
 		}
 		printf("connect failed!trying to connect again...\n");
+			
 	}
 }
 
 bool client::free_ticket()
 {
-	char msg[20];
-	memset(msg, 0, 20);
+	char msg[MSGLEN];
+	memset(msg, 0, MSGLEN);
 	sprintf(msg, "GBYE %d", ticket_NO);
-	int recv_len;
+	int addr_len=sizeof(sockaddr);
 	sendto(sock, msg, strlen(msg), 0, (struct sockaddr*)(&serv_addr), sizeof(serv_addr));
-	memset(msg, 0, 20);
-	for (int i = 0; i < 10; i++)
-		if (recvfrom(sock, msg, MSGLEN, 0, (struct sockaddr*) & serv_addr, &recv_len) != -1) {
-			printf("released ticket OK\n");
+	memset(msg, 0, MSGLEN);
+	for (int i = 0; i <3; i++)
+		if (recvfrom(sock, msg, MSGLEN, 0, (struct sockaddr*) & serv_addr, &addr_len) != -1) {
+			printf("released ticket OK.APP exit.\n");
 			ticket_NO = -1;
 			return true;
 		}
-		else Sleep(200);
 	printf("released ticket failed,APP exit.\n");
 }
 
 bool client::confirm_connect()
 {
-	char msg[20];
-	memset(msg, 0, 20);
+	char msg[MSGLEN];
+	memset(msg, 0, MSGLEN);
 	sprintf(msg, "CONN %d", ticket_NO);
-	int recv_len;
-	sendto(sock, msg, strlen(msg), 0, (struct sockaddr*)(&serv_addr), sizeof(serv_addr));
-	memset(msg, 0, 20);
+	int addr_len=sizeof(sockaddr);
+	sendto(sock, msg, MSGLEN, 0, (struct sockaddr*)(&serv_addr), sizeof(serv_addr));
+	memset(msg, 0, MSGLEN);
 
-		for (int i = 0; i < 20; i++) {
-			if (recvfrom(sock, msg, MSGLEN, 0, (struct sockaddr*) & serv_addr, &recv_len) != -1) {
+		for (int i = 0; i < 5; i++) {
+			if (recvfrom(sock, msg, MSGLEN, 0, (struct sockaddr*) & serv_addr, &addr_len) != -1) {
 				if (strncmp(msg, "CONN", 4) == 0) {
 					return true;
 				}
@@ -120,7 +123,6 @@ bool client::confirm_connect()
 				else perror("received message wrong");
 				return false;
 			}
-			Sleep(200);
 		}
 		
 	

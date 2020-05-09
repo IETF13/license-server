@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <stdlib.h>
+#include<ctime>
 #ifdef _WIN32
 #include <io.h>
 #include <direct.h>
@@ -24,7 +25,7 @@
 #include <dirent.h>
 #endif
 
-#define MSGLEN 20
+#define MSGLEN 1024
 #define PASSWORDLEN 10
 #define USERNUM 10
 
@@ -34,8 +35,11 @@ public:
 	void running();
 private:
 	int user;
+	char password[PASSWORDLEN];
 	bool ticket[USERNUM];
-	int last_conn_time[USERNUM];
+	clock_t last_conn_time[USERNUM];
+	sockaddr_in serv_addr;
+	sockaddr_in last_client_addr;
 #ifdef _WIN32
 	SOCKET sock;
 #endif
@@ -43,6 +47,8 @@ private:
 	int sock;
 #endif
 	bool setup();
-	bool restart();
 	void handle_request(char * msg);
+	bool do_hello(char * msg);
+	bool do_goobye();
+	bool do_connect();
 };
