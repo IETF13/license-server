@@ -35,7 +35,7 @@ public:
 	void running();
 private:
 	int user;
-	char password[PASSWORDLEN];
+	char password[PASSWORDLEN+1];
 	bool ticket[USERNUM];
 	clock_t last_conn_time[USERNUM];
 	sockaddr_in serv_addr;
@@ -49,6 +49,9 @@ private:
 	bool setup();
 	void handle_request(char * msg);
 	bool do_hello(char * msg);
-	bool do_goobye();
-	bool do_connect();
+	bool do_goodbye(char* msg);
+	bool do_connect(char* msg);
+	bool LogToFile();
+	char * randomPASSWORD();
+	bool ReadLogFile();
 };

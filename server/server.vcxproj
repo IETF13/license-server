@@ -87,6 +87,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS  /D _WINSOCK_DEPRECATED_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -138,15 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\src\server\dgram.cpp" />
-    <ClCompile Include="..\src\src\server\dgrecv2.cpp" />
-    <ClCompile Include="..\src\src\server\logfilec.cpp" />
-    <ClCompile Include="..\src\src\server\logfiled.cpp" />
-    <ClCompile Include="..\src\src\server\lserv1.c" />
-    <ClCompile Include="..\src\src\server\lserv2.cpp" />
-    <ClCompile Include="..\src\src\server\lserv_funcs2.cpp" />
-    <ClCompile Include="..\src\src\server\lsrv_funcs1.c" />
-    <ClCompile Include="LogFile.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="server.cpp" />
   </ItemGroup>
   <ItemGroup>
