@@ -25,6 +25,8 @@ client::client(char * addr,int portnum,char *Password)
 bool client::running()
 {
 	if (get_ticket()) {
+		printf("APP start running...\n");
+		printf("Input Q or q to quit\n");
 		int disconn_times = 0;//if connect failed,disconn_times++,if conn_time>=3,APP exit;if connect valid,disconn_times=0
 		clock_t last_conn_time=clock();
 		while (true) {
@@ -36,6 +38,7 @@ bool client::running()
 			}
 			if (disconn_times >= 3) {
 				printf("connection with server lost.APP close.");
+				exit(0);
 			}
 
 #ifdef _WIN32
@@ -100,7 +103,7 @@ bool client::free_ticket()
 			ticket_NO = -1;
 			return true;
 		}
-	printf("released ticket failed,APP exit.\n");
+	printf("\nreleased ticket failed,APP exit.\n");
 }
 
 bool client::confirm_connect()
@@ -115,6 +118,7 @@ bool client::confirm_connect()
 		for (int i = 0; i < 5; i++) {
 			if (recvfrom(sock, msg, MSGLEN, 0, (struct sockaddr*) & serv_addr, &addr_len) != -1) {
 				if (strncmp(msg, "CONN", 4) == 0) {
+					printf("connect with server succeed...");
 					return true;
 				}
 				else if (strncmp(msg, "FAIL", 4) == 0) {
