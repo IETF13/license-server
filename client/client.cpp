@@ -37,8 +37,7 @@ bool client::running()
 				else disconn_times++;
 			}
 			if (disconn_times >= 3) {
-				printf("connection with server lost.APP close.");
-				exit(0);
+				printf("connect with server failed.Maybe server crashed.Waiting for server restart...\n");
 			}
 
 #ifdef _WIN32
@@ -99,7 +98,7 @@ bool client::free_ticket()
 	memset(msg, 0, MSGLEN);
 	for (int i = 0; i <3; i++)
 		if (recvfrom(sock, msg, MSGLEN, 0, (struct sockaddr*) & serv_addr, &addr_len) != -1) {
-			printf("released ticket OK.APP exit.\n");
+			printf("\nreleased ticket OK.APP exit.\n");
 			ticket_NO = -1;
 			return true;
 		}
