@@ -57,8 +57,7 @@ void server::running()
 	memset(msg,0,MSGLEN);
 	int nSize = sizeof(sockaddr);
 	while (true) {
-		int res = -1;
-		while (res == -1)res = recvfrom(sock, msg, MSGLEN, 0, (struct sockaddr*) &last_client_addr, &nSize);
+		int res = recvfrom(sock, msg, MSGLEN, 0, (struct sockaddr*) &last_client_addr, &nSize);
 		if (res!=-1)
 		{
 			printf("get message:%s\n", msg);
@@ -71,23 +70,31 @@ void server::running()
 		{
 			char temp = _getche();
 			if (temp == 'Q' || temp == 'q')
-				break;
+			{
+				printf("\nserver close.\n");
+				if (remove("Log.FLOG") == -1)
+					perror("delete logfile failed.result");
+				exit(0);
+			}
 		}
 #endif
-
 		for (int i = 0; i < USERNUM; i++) {
-			if ((clock() - last_conn_time[i])/CLOCKS_PER_SEC>60);
-			{
-				ticket[i] = false;
-				printf("user %d lost connection,ticket take back\n", i);
-				user--;
+			if (ticket[i]) {
+				clock_t nowTime = clock();
+				if ((nowTime - last_conn_time[i]) / CLOCKS_PER_SEC > 60) {
+					printf("user %d lost connection,take back ticket\n",i);
+					ticket[i] = false;
+					user--;
+					LogToFile();
+					printf("now user number :%d\n", user);
+				}
 			}
 		}
 	}
 }
 
 
-bool server::setup()
+bool server::setup()  //finish
 {
 	memset(password,0,PASSWORDLEN+1);
 	if (!ReadLogFile()) {
@@ -99,12 +106,17 @@ bool server::setup()
 	else {
 		printf("server restart\n");
 		for (int i = 0; i < USERNUM; i++)
-			last_conn_time[i] = clock();
+			if (ticket[i]) {
+				last_conn_time[i] = clock();
+				user++;
+			}
+		printf("user number before server closed is %d\n",user);
 	}
+	printf("Password is %s\n",password);
 	return true;
 }
 
-void server::handle_request(char* msg)
+void server::handle_request(char* msg)   //finish
 {
 	if (strncmp(msg, "HELO", 4) == 0)
 		do_hello(msg + 5);
@@ -115,30 +127,32 @@ void server::handle_request(char* msg)
 
 }
 
-bool server::do_goodbye(char* msg)
+bool server::do_goodbye(char* msg)  //finish
 {
 	char back_msg[MSGLEN];
 	memset(back_msg, 0, MSGLEN);
 	int free_NO = atoi(msg);
 	ticket[free_NO] = false;
 	user--;
+	printf("now user number :%d\n", user);
 	sprintf(back_msg, "THNX thanks for using!");
 	sendto(sock, back_msg, MSGLEN, 0, (struct sockaddr*) & last_client_addr, sizeof(last_client_addr));
+	LogToFile();
 	return true;
 }
 
-bool server::do_connect(char* msg)
+bool server::do_connect(char* msg)  //finish
 {
 	char back_msg[MSGLEN];
 	memset(back_msg, 0, MSGLEN);
 	int conn_NO = atoi(msg);
 	last_conn_time[conn_NO] = clock();
-	sprintf(back_msg, "CONN connecting with server");
+	sprintf(back_msg, "CONN connect succeed");
 	sendto(sock, back_msg, MSGLEN, 0, (struct sockaddr*) & last_client_addr, sizeof(last_client_addr));
 	return true;
 }
 
-bool server::do_hello(char * msg)
+bool server::do_hello(char * msg)  //finish
 {
 	char back_msg[MSGLEN];
 	memset(back_msg, 0, MSGLEN);
@@ -150,16 +164,22 @@ bool server::do_hello(char * msg)
 			int valid_ticket = 0;
 			while (ticket[valid_ticket]) valid_ticket++;
 			sprintf(back_msg, "TICK %d", valid_ticket);
+			ticket[valid_ticket] = true;
 			last_conn_time[user] = clock();
 			user++;
+			printf("now user number :%d\n",user);
+			LogToFile();
 		}
 	}
-	else sprintf(back_msg, "FAIL password wrong");
+	else {
+		sprintf(back_msg, "FAIL password wrong");
+		printf("password wrong\n", user);
+	}
 	sendto(sock,back_msg,MSGLEN,0,(struct sockaddr*)&last_client_addr,sizeof(last_client_addr));
 	return true;
 }
 
-bool server::LogToFile()
+bool server::LogToFile()  //finish
 {
 	FILE* fp;
 	if ((fp = fopen("Log.FLOG", "w")) != NULL)
@@ -178,7 +198,7 @@ bool server::LogToFile()
 	}
 	return false;
 }
-bool server::ReadLogFile()
+bool server::ReadLogFile()  //finish
 {
 	FILE* fp;
 	if ((fp = fopen("Log.FLOG", "r")) != NULL)
@@ -187,6 +207,7 @@ bool server::ReadLogFile()
 		{
 			fgets(password, PASSWORDLEN + 1, fp);
 		}
+		else return false;
 		int i = 0;
 		while (!feof(fp))
 		{
@@ -195,7 +216,7 @@ bool server::ReadLogFile()
 			{
 				continue;
 			}
-			ticket[i] = tmp - '0';
+			ticket[i] = tmp == '0' ? false:true;
 			i++;
 			if (i >= USERNUM)
 			{
@@ -208,7 +229,7 @@ bool server::ReadLogFile()
 	return false;
 }
 
-char* server::randomPASSWORD() {
+char* server::randomPASSWORD() {  //finish
 	char p[PASSWORDLEN];
 	srand((int)time(0));
 		for (int i = 0; i < PASSWORDLEN; i++) {
