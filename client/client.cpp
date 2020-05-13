@@ -27,18 +27,16 @@ bool client::running()
 	if (get_ticket()) {
 		printf("APP start running...\n");
 		printf("Input Q or q to quit\n");
-		int disconn_times = 0;//if connect failed,disconn_times++,if conn_time>=3,APP exit;if connect valid,disconn_times=0
+		//int disconn_times = 0;//if connect failed,disconn_times++,if conn_time>=3,APP exit;if connect valid,disconn_times=0
 		clock_t last_conn_time=clock();
 		while (true) {
 			if ((clock()-last_conn_time)/ CLOCKS_PER_SEC >20) {
 				last_conn_time = clock();
-				if (confirm_connect())
-					disconn_times = 0;
-				else disconn_times++;
+				if (!confirm_connect())
+					printf("connect with server failed.Maybe server crashed.Waiting for server restart...\n");
+				
 			}
-			if (disconn_times >= 3) {
-				printf("connect with server failed.Maybe server crashed.Waiting for server restart...\n");
-			}
+
 
 #ifdef _WIN32
 			if (_kbhit())//非阻塞获取用户输入
@@ -117,13 +115,13 @@ bool client::confirm_connect()
 		for (int i = 0; i < 5; i++) {
 			if (recvfrom(sock, msg, MSGLEN, 0, (struct sockaddr*) & serv_addr, &addr_len) != -1) {
 				if (strncmp(msg, "CONN", 4) == 0) {
-					printf("connect with server succeed...");
+					printf("connect with server succeed\n");
 					return true;
 				}
 				else if (strncmp(msg, "FAIL", 4) == 0) {
 					printf("%s\n", msg + 5);
 				}
-				else perror("received message wrong");
+				else perror("received message wrong\n");
 				return false;
 			}
 		}

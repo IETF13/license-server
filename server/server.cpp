@@ -98,6 +98,7 @@ bool server::setup()  //finish
 {
 	memset(password,0,PASSWORDLEN+1);
 	if (!ReadLogFile()) {
+		while(!login()) printf("account or password wrong.please enter again.\n");
 		strncpy(password, randomPASSWORD(), PASSWORDLEN);
 		for (int i = 0; i < USERNUM; i++)
 			ticket[i] = false;
