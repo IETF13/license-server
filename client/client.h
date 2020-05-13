@@ -1,15 +1,17 @@
 #pragma once
-#include <stdio.h>
+#include <cstdio>
 #include <sys/types.h>
-#include <stdlib.h>
-#include<ctime>
+#include <cstdlib>
+#include <ctime>
+#include <cstring>
+
 #ifdef _WIN32
 #include <io.h>
 #include <direct.h>
 #include<ws2tcpip.h>
 #include <winsock.h>
 #include <windows.h>
-#include <conio.h>//_kbhit()ÐèÒª
+#include <conio.h>//_kbhit()ï¿½ï¿½Òª
 #pragma comment (lib, "ws2_32.lib")
 #endif
 

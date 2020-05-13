@@ -9,7 +9,7 @@ server::server(char* addr, int portnum)
 	sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
 #endif
 #ifdef __linux__
-	cmd_sock = socket(AF_INET, SOCK_DGRAM, 0);
+	sock = socket(AF_INET, SOCK_DGRAM, 0);
 #endif
 	//memset(&serv_addr, 0, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
@@ -66,7 +66,7 @@ void server::running()
 		}
 
 #ifdef _WIN32
-		if (_kbhit())//·Ç×èÈû»ñÈ¡ÓÃ»§ÊäÈë
+		if (_kbhit())//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½
 		{
 			char temp = _getche();
 			if (temp == 'Q' || temp == 'q')
@@ -182,8 +182,8 @@ bool server::do_hello(char * msg)  //finish
 
 bool server::LogToFile()  //finish
 {
-	FILE* fp;
-	if ((fp = fopen("Log.FLOG", "w")) != NULL)
+	FILE* fp = nullptr;
+	if ((fp = fopen("Log.FLOG", "w")) != nullptr)
 	{
 		for (unsigned int i = 0; i < PASSWORDLEN; i++)
 			fprintf(fp, "%c", password[i]);
@@ -201,8 +201,8 @@ bool server::LogToFile()  //finish
 }
 bool server::ReadLogFile()  //finish
 {
-	FILE* fp;
-	if ((fp = fopen("Log.FLOG", "r")) != NULL)
+	FILE* fp = nullptr;
+	if ((fp = fopen("Log.FLOG", "r")) != nullptr)
 	{
 		if (!feof(fp))
 		{

@@ -1,14 +1,18 @@
 ﻿#include <iostream>
 #include <stdio.h>
-#include <memory.h>;
+#include <memory.h>
+
 #pragma warning(disable:4996)
+
 #define USERNUM 10
 #define PASSWORDLEN 10
+
 using namespace std;
+
 void LogToFile(char* password, bool ticket[])
 {
-	FILE* fp;
-	if ((fp = fopen("Log.txt", "w")) != NULL)
+	FILE* fp = nullptr;
+	if ((fp = fopen("Log.txt", "w")) != nullptr)
 	{
 		for (unsigned int i = 0; i < PASSWORDLEN; i++)
 			fprintf(fp, "%c", password[i]);
@@ -25,8 +29,8 @@ void LogToFile(char* password, bool ticket[])
 }
 void ReadLogFile(char* password, bool ticket[])
 {
-	FILE* fp;
-	if ((fp = fopen("Log.txt", "r")) != NULL)
+	FILE* fp = nullptr;
+	if ((fp = fopen("Log.txt", "r")) != nullptr)
 	{
 		if (!feof(fp))
 		{

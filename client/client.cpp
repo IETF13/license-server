@@ -10,7 +10,7 @@ client::client(char * addr,int portnum,char *Password)
 	sock = socket(AF_INET, SOCK_DGRAM, 0);
 #endif
 #ifdef __linux__
-	cmd_sock = socket(AF_INET, SOCK_DGRAM, 0);
+	sock = socket(AF_INET, SOCK_DGRAM, 0);
 #endif
 	memset(&serv_addr, 0, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
@@ -30,7 +30,7 @@ bool client::running()
 		//int disconn_times = 0;//if connect failed,disconn_times++,if conn_time>=3,APP exit;if connect valid,disconn_times=0
 		clock_t last_conn_time=clock();
 		while (true) {
-			if ((clock()-last_conn_time)/ CLOCKS_PER_SEC >20) {
+			if ((clock() - last_conn_time)/ CLOCKS_PER_SEC > 20) {
 				last_conn_time = clock();
 				if (!confirm_connect())
 					printf("connect with server failed.Maybe server crashed.Waiting for server restart...\n");
@@ -39,7 +39,7 @@ bool client::running()
 
 
 #ifdef _WIN32
-			if (_kbhit())//·Ç×èÈû»ñÈ¡ÓÃ»§ÊäÈë
+			if (_kbhit())//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½
 			{
 				char temp = _getche();
 				if (temp == 'Q' || temp == 'q')
