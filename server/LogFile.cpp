@@ -23,7 +23,7 @@ void LogToFile(char* password, bool ticket[])
 	}
 	else
 	{
-		printf("open file error");
+		printf("Open file error");
 	}
 
 }
@@ -55,7 +55,7 @@ void ReadLogFile(char* password, bool ticket[])
 	}
 	else
 	{
-		printf("open file error");
+		printf("Open file error");
 	}
 
 }

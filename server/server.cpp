@@ -27,7 +27,7 @@ server::server(char* addr, int portnum)
 		if (setsockopt(cmd_sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) == -1)
 #endif
 		{
-			perror("setsockopt reuse failed!");
+			perror("Setsockopt reuse failed!");
 		}
 
 	struct timeval timeout;
@@ -35,7 +35,7 @@ server::server(char* addr, int portnum)
 	timeout.tv_usec = 0;
 	if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout)) == -1)
 	{
-		perror("setsockopt timeout failed:");
+		perror("Setsockopt timeout failed:");
 	}
 
 	char nochecksum = 0;
@@ -43,7 +43,7 @@ server::server(char* addr, int portnum)
 	*/
 	if (bind(sock, (sockaddr*) & serv_addr, sizeof(sockaddr)) == -1)
 	{
-		perror("bind failed!");
+		perror("Bind failed!");
 	}
 
 	int timeout = 1200;
@@ -60,7 +60,7 @@ void server::running()
 		int res = recvfrom(sock, msg, MSGLEN, 0, (struct sockaddr*) &last_client_addr, &nSize);
 		if (res!=-1)
 		{
-			printf("get message:%s\n", msg);
+			printf("Get message:%s\n", msg);
 			handle_request(msg);
 			memset(msg, 0, MSGLEN);
 		}
@@ -73,7 +73,7 @@ void server::running()
 			{
 				printf("\nserver close.\n");
 				if (remove("Log.FLOG") == -1)
-					perror("delete logfile failed.result");
+					perror("Delete logfile failed.result");
 				exit(0);
 			}
 		}
@@ -82,11 +82,12 @@ void server::running()
 			if (ticket[i]) {
 				clock_t nowTime = clock();
 				if ((nowTime - last_conn_time[i]) / CLOCKS_PER_SEC > 60) {
-					printf("user %d lost connection,take back ticket\n",i);
+					printf("User %d lost connection,take back ticket\n",i);
 					ticket[i] = false;
-					user--;
+					if(user > 0)
+						user--;
 					LogToFile();
-					printf("now user number :%d\n", user);
+					printf("Now user number :%d\n", user);
 				}
 			}
 		}
@@ -98,7 +99,7 @@ bool server::setup()  //finish
 {
 	memset(password,0,PASSWORDLEN+1);
 	if (!ReadLogFile()) {
-		while(!login()) printf("account or password wrong.please enter again.\n");
+		while(!login()) printf("Account or password wrong.please enter again.\n");
 		strncpy(password, randomPASSWORD(), PASSWORDLEN);
 		for (int i = 0; i < USERNUM; i++)
 			ticket[i] = false;
@@ -111,7 +112,7 @@ bool server::setup()  //finish
 				last_conn_time[i] = clock();
 				user++;
 			}
-		printf("user number before server closed is %d\n",user);
+		printf("User number before server closed is %d\n",user);
 	}
 	printf("Password is %s\n",password);
 	return true;
@@ -134,8 +135,9 @@ bool server::do_goodbye(char* msg)  //finish
 	memset(back_msg, 0, MSGLEN);
 	int free_NO = atoi(msg);
 	ticket[free_NO] = false;
-	user--;
-	printf("now user number :%d\n", user);
+	if(user > 0)
+		user--;
+	printf("Now user number :%d\n", user);
 	sprintf(back_msg, "THNX thanks for using!");
 	sendto(sock, back_msg, MSGLEN, 0, (struct sockaddr*) & last_client_addr, sizeof(last_client_addr));
 	LogToFile();
@@ -168,13 +170,13 @@ bool server::do_hello(char * msg)  //finish
 			ticket[valid_ticket] = true;
 			last_conn_time[user] = clock();
 			user++;
-			printf("now user number :%d\n",user);
+			printf("Now user number :%d\n",user);
 			LogToFile();
 		}
 	}
 	else {
 		sprintf(back_msg, "FAIL password wrong");
-		printf("password wrong\n", user);
+		printf("Password wrong\n", user);
 	}
 	sendto(sock,back_msg,MSGLEN,0,(struct sockaddr*)&last_client_addr,sizeof(last_client_addr));
 	return true;
@@ -195,7 +197,7 @@ bool server::LogToFile()  //finish
 	}
 	else
 	{
-		printf("open file error");
+		printf("Open file error");
 	}
 	return false;
 }

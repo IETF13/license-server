@@ -3,10 +3,10 @@
 bool accountJudge(const string account,const string password)
 {
     map<string,string> ACCOUNTS;
-    ACCOUNTS["admin"]="password";
-    ACCOUNTS["ADMIN"]="password";
+    ACCOUNTS["admin"] = "password";
+    ACCOUNTS["ADMIN"] = "password";
     
-    if(ACCOUNTS[account].compare(password)==0)
+    if(ACCOUNTS[account].compare(password) == 0)
         return true;
     return false;
 }
@@ -17,11 +17,11 @@ bool login()
     string input_password;
     string type;
 
-    cout<<"please enter user account"<<endl;
-    cin>> input_account;
+    cout << "please enter user account" << endl;
+    cin >> input_account;
 
-    cout<<"please enter password"<<endl;
-    cin>> input_password;
+    cout << "please enter password" << endl;
+    cin >> input_password;
 
     cout << "please enter license type" << endl;
     cin >> type;
