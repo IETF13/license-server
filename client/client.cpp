@@ -38,8 +38,12 @@ bool client::running()
 					printf("Connect with server failed.Maybe server crashed.Waiting for server restart...\n");
 					lost_conn_times++;
 				}
-				if (lost_conn_times >= 3)
-					return false;
+                else lost_conn_times = 0;
+                if (lost_conn_times >= 3)
+                {
+                    printf("Lost connection with server too many times,ticket released.Trying to get ticket agian.\n");
+                    return false;
+                }
 			}
 #ifdef _WIN32
 			if (_kbhit())//非阻塞获取用户输入
